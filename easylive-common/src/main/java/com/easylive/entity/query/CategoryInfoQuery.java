@@ -5,6 +5,9 @@ package com.easylive.entity.query;
 /**
  * 分类信息参数
  */
+
+
+
 public class CategoryInfoQuery extends BaseParam {
 
 
@@ -51,6 +54,25 @@ public class CategoryInfoQuery extends BaseParam {
 	 */
 	private Integer sort;
 
+	private Integer categoryIdOrpCategoryId;
+
+	private Boolean convert2Tree;
+
+	public Boolean getConvert2Tree() {
+		return convert2Tree;
+	}
+
+	public void setConvert2Tree(Boolean convert2Tree) {
+		this.convert2Tree = convert2Tree;
+	}
+
+	public Integer getCategoryIdOrpCategoryId() {
+		return categoryIdOrpCategoryId;
+	}
+
+	public void setCategoryIdOrpCategoryId(Integer categoryIdOrpCategoryId) {
+		this.categoryIdOrpCategoryId = categoryIdOrpCategoryId;
+	}
 
 	public void setCategoryId(Integer categoryId){
 		this.categoryId = categoryId;

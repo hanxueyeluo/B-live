@@ -87,4 +87,9 @@ public interface CategoryInfoService {
 	 */
 	Integer deleteCategoryInfoByCategoryCode(String categoryCode);
 
+	void saveCategory(CategoryInfo categoryInfo);
+
+	void deleteCategory(Integer categoryId);
+
+	void changeSort(Integer pCategoryId, String categoryIds);
 }

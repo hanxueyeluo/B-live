@@ -1,6 +1,9 @@
 package com.easylive.mapper;
 
+import com.easylive.entity.po.CategoryInfo;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 分类信息 数据库操作接口
@@ -43,4 +46,7 @@ public interface CategoryInfoMapper<T,P> extends BaseMapper<T,P> {
 	 T selectByCategoryCode(@Param("categoryCode") String categoryCode);
 
 
+	Integer selectMaxSort(@Param("pCategoryId") Integer pCategoryId);
+
+	void updateSortBatch(@Param("categoryInfoList") List<CategoryInfo> categoryInfoList);
 }

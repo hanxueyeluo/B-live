@@ -74,6 +74,10 @@
 			<if test="query.backgroundFuzzy!= null  and query.backgroundFuzzy!=''">
 				 and  background like concat('%', #{query.backgroundFuzzy}, '%')
 			</if>
+			<if test="query.getCategoryIdOrpCategoryId!=null">
+				and   category_id=#{query.getCategoryIdOrpCategoryId} or p_category_id=#{query.getCategoryIdOrpCategoryId}
+			</if>
+
 	 </where>
 	</sql>
 
@@ -354,6 +358,11 @@
  		 </set>
  		 where category_code=#{categoryCode}
 	</update>
+	<update id="updateSortBatch">
+		<foreach collection="categoryInfoList" separator=";" item="item">
+			update category_info set sort=#{item.sort} where category_id=#{item.categoryId} and p_category_id=#{item.pCategoryId}
+		</foreach>
+	</update>
 
 	<!-- 根据CategoryCode删除-->
 	<delete id="deleteByCategoryCode">
@@ -363,6 +372,9 @@
 	<!-- 根据PrimaryKey获取对象-->
 	<select id="selectByCategoryCode" resultMap="base_result_map" >
 		select <include refid="base_column_list" /> from category_info where category_code=#{categoryCode}
+	</select>
+	<select id="selectMaxSort" resultType="java.lang.Integer">
+		select nullif(max(sort),0) from category_info where p_category_id=#{pCategoryId}
 	</select>
 
 </mapper>

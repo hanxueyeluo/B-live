@@ -1,9 +1,13 @@
 package com.easylive.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.easylive.entity.constants.Constants;
+import com.easylive.exception.BusinessException;
+import org.elasticsearch.common.recycler.Recycler;
 import org.springframework.stereotype.Service;
 
 import com.easylive.entity.enums.PageSize;
@@ -30,8 +34,24 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 	 */
 	@Override
 	public List<CategoryInfo> findListByParam(CategoryInfoQuery param) {
-		return this.categoryInfoMapper.selectList(param);
+		List<CategoryInfo> categoryInfoList=this.categoryInfoMapper.selectList(param);
+		if (param.getConvert2Tree()!=null&&param.getConvert2Tree()){
+			categoryInfoList=convertLine2Tree(categoryInfoList, Constants.ZERO);
+		}
+		return categoryInfoList;
 	}
+
+	private List<CategoryInfo> convertLine2Tree(List<CategoryInfo> dateList,Integer pid){
+		List<CategoryInfo> children=new ArrayList<>();
+		for (CategoryInfo m: dateList) {
+			if (m.getCategoryId()!=null&&m.getpCategoryId()!=null&&m.getpCategoryId().equals(pid)){
+				m.setChildren(convertLine2Tree(dateList,m.getpCategoryId()));
+				children.add(m);
+			}
+		}
+		return children;
+	}
+
 
 	/**
 	 * 根据条件查询列表
@@ -150,5 +170,42 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 	@Override
 	public Integer deleteCategoryInfoByCategoryCode(String categoryCode) {
 		return this.categoryInfoMapper.deleteByCategoryCode(categoryCode);
+	}
+
+	@Override
+	public void saveCategory(CategoryInfo categoryInfo) {
+		CategoryInfo dbInfo=this.categoryInfoMapper.selectByCategoryCode(categoryInfo.getCategoryCode());
+		if (categoryInfo.getCategoryId()==null&&dbInfo!=null||categoryInfo.getCategoryId()!=null&&dbInfo!=null&&!categoryInfo.getCategoryId().equals(dbInfo.getCategoryId())){
+			throw new BusinessException("分类编号已存在");
+		}
+		if (categoryInfo.getCategoryId()==null){
+			Integer maxSort=this.categoryInfoMapper.selectMaxSort(categoryInfo.getCategoryId());
+			categoryInfo.setSort(maxSort+1);
+			this.categoryInfoMapper.insert(categoryInfo);
+		}else{
+			this.categoryInfoMapper.updateByCategoryId(categoryInfo,categoryInfo.getCategoryId());
+		}
+	}
+
+	@Override
+	public void deleteCategory(Integer categoryId) {
+		CategoryInfoQuery categoryInfoQuery=new CategoryInfoQuery();
+		categoryInfoQuery.setCategoryIdOrpCategoryId(categoryId);
+		categoryInfoMapper.deleteByParam(categoryInfoQuery);
+	}
+
+	@Override
+	public void changeSort(Integer pCategoryId, String categoryIds) {
+		String[] categoryIdArray=categoryIds.split(",");
+		List<CategoryInfo> categoryInfoList=new ArrayList<>();
+		Integer sort=0;
+		for (String categoryId:categoryIdArray){
+			CategoryInfo categoryInfo=new CategoryInfo();
+			categoryInfo.setCategoryId(Integer.parseInt(categoryId));
+			categoryInfo.setpCategoryId(pCategoryId);
+			categoryInfo.setSort(sort);
+			categoryInfoList.add(categoryInfo);
+		}
+		categoryInfoMapper.updateSortBatch(categoryInfoList);
 	}
 }
