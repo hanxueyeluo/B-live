@@ -44,6 +44,10 @@ public class RedisComponent {
        return (TokenUserInfoDto) redisUtils.get(Constants.REDIS_KEY_TOKEN_WEB+token);
     }
 
+    public String getForAdminToken(String token){
+        return (String) redisUtils.get(Constants.REDIS_KEY_TOKEN_ADMIN+token);
+    }
+
     public String saveToken4Admin(String account){
         String token=UUID.randomUUID().toString();
         redisUtils.setex(Constants.REDIS_KEY_TOKEN_ADMIN+token,account,Constants.REDIS_KEY_EXPIRES_ONE_DAY);
