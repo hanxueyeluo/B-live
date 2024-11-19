@@ -18,6 +18,13 @@ public class AppConfig {
     @Value("${admin.password}")
     private String adminPassword;
 
+    @Value("${showFFmepgLog:true}")
+    private Boolean showFFmepgLog;
+
+    public Boolean getShowFFmepgLog() {
+        return showFFmepgLog;
+    }
+
     public String getProjectFolder() {
         return projectFolder;
     }

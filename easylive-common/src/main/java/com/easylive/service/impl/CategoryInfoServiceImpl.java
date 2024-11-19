@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.easylive.component.RedisComponent;
 import com.easylive.entity.constants.Constants;
 import com.easylive.exception.BusinessException;
 import org.elasticsearch.common.recycler.Recycler;
@@ -28,6 +29,9 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 
 	@Resource
 	private CategoryInfoMapper<CategoryInfo, CategoryInfoQuery> categoryInfoMapper;
+
+	@Resource
+	private RedisComponent redisComponent;
 
 	/**
 	 * 根据条件查询列表
@@ -185,6 +189,7 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 		}else{
 			this.categoryInfoMapper.updateByCategoryId(categoryInfo,categoryInfo.getCategoryId());
 		}
+		save2redis();
 	}
 
 	@Override
@@ -192,6 +197,7 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 		CategoryInfoQuery categoryInfoQuery=new CategoryInfoQuery();
 		categoryInfoQuery.setCategoryIdOrpCategoryId(categoryId);
 		categoryInfoMapper.deleteByParam(categoryInfoQuery);
+		save2redis();
 	}
 
 	@Override
@@ -207,5 +213,15 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 			categoryInfoList.add(categoryInfo);
 		}
 		categoryInfoMapper.updateSortBatch(categoryInfoList);
+		save2redis();
 	}
+
+	private void save2redis(){
+		CategoryInfoQuery categoryInfoQuery=new CategoryInfoQuery();
+		categoryInfoQuery.setOrderBy("sort asc");
+		categoryInfoQuery.setConvert2Tree(true);
+		List<CategoryInfo> categoryInfoList=findListByParam(categoryInfoQuery);
+		redisComponent.saveCategoryList(categoryInfoList);
+	}
+
 }
