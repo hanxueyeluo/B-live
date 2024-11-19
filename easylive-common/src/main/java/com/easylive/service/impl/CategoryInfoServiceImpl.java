@@ -224,4 +224,12 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 		redisComponent.saveCategoryList(categoryInfoList);
 	}
 
+	@Override
+	public List<CategoryInfo> getAllCategoryList() {
+		List<CategoryInfo> categoryInfoList=redisComponent.getCategoryList();
+		if (categoryInfoList.isEmpty()) {
+			save2redis();
+		}
+		return redisComponent.getCategoryList();
+	}
 }
