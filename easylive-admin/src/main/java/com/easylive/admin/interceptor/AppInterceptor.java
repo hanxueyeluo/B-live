@@ -5,6 +5,7 @@ import com.easylive.entity.constants.Constants;
 import com.easylive.entity.enums.ResponseCodeEnum;
 import com.easylive.exception.BusinessException;
 import com.easylive.utils.StringTools;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,6 +15,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
+@Component
 public class AppInterceptor implements HandlerInterceptor {
     private final static String URL_ACCOUNT="/account";
     private final static String URL_FILE="/file";

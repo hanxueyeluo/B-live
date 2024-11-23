@@ -2,9 +2,12 @@ package com.easylive.utils;
 
 import com.easylive.entity.config.AppConfig;
 import com.easylive.entity.constants.Constants;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
+
+@Component
 public class FFmpegUtils {
     @Resource
     private AppConfig appConfig;
