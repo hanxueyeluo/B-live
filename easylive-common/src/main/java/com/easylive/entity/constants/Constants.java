@@ -33,5 +33,8 @@ public class Constants {
     public static final String QUEUE_NAME = "videoFileTransferQueue";
     public static final String EXCHANGE_NAME = "videoExchange";
     public static final String ROUTING_KEY = "videoRoutingKey";
+    public static final String TEMP_VIDEO_NAME="/temp.mp4";
+    public static final String VIDEO_CODE_HEVC="hevc";
+    public static final String VIDEO_CODE_TEMP_SUFFIX="_temp";
 
 }
