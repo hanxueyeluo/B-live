@@ -514,6 +514,43 @@
  		 </set>
  		 where upload_id=#{uploadId}
 	</update>
+    <update id="updateByUploadIdAndUserId" parameterType="com.easylive.entity.po.VideoInfoFilePost">
+		UPDATE video_info_file_post
+		<set>
+			<if test="bean.fileId != null">
+				file_id = #{bean.fileId},
+			</if>
+			<if test="bean.userId != null">
+				user_id = #{bean.userId},
+			</if>
+			<if test="bean.videoId != null">
+				video_id = #{bean.videoId},
+			</if>
+			<if test="bean.fileIndex != null">
+				file_index = #{bean.fileIndex},
+			</if>
+			<if test="bean.fileName != null">
+				file_name = #{bean.fileName},
+			</if>
+			<if test="bean.fileSize != null">
+				file_size = #{bean.fileSize},
+			</if>
+			<if test="bean.filePath != null">
+				file_path = #{bean.filePath},
+			</if>
+			<if test="bean.updateType != null">
+				update_type = #{bean.updateType},
+			</if>
+			<if test="bean.transferResult != null">
+				transfer_result = #{bean.transferResult},
+			</if>
+			<if test="bean.duration != null">
+				duration = #{bean.duration},
+			</if>
+		</set>
+		where upload_id=#{uploadId} and user_id=#{userId}
+	</update>
+
 
 	<!-- 根据UploadId删除-->
 	<delete id="deleteByUploadId">
@@ -527,6 +564,9 @@
     <!-- 根据PrimaryKey获取对象-->
 	<select id="selectByUploadId" resultMap="base_result_map" >
 		select <include refid="base_column_list" /> from video_info_file_post where upload_id=#{uploadId}
+	</select>
+	<select id="sumDuration" resultType="java.lang.Integer">
+		select nullif(sum(duration),0) from video_info_file_post where video_id=#{videoId}
 	</select>
 
 </mapper>

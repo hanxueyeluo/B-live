@@ -232,7 +232,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			List<String> delFileList=deleteFileList.stream().map(item->item.getFileId()).collect(Collectors.toList());
 			this.videoInfoFilePostMapper.deleteBatchByFileId(delFileList,videoInfoPost.getUserId());
 			List<String> delFilePathList=deleteFileList.stream().map(item->item.getFilePath()).collect(Collectors.toList());
-			rabbitMQComponent.addFile2DelQueue(videoId,delFilePathList);
+			rabbitMQComponent.addFile2DelQueue(delFilePathList);
 		}
 		Integer index=1;
 		for (VideoInfoFilePost videoInfoFilePost:filePostList){
@@ -277,7 +277,12 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			String targetFilePath=appConfig.getProjectFolder()+Constants.FILE_FOLDER+Constants.FILE_VIDEO+fileDto.getFilePath();
 
 			File targetFile=new File(targetFilePath);
-			FileUtils.copyDirectory(targetFile,targetFile);
+
+			if (!targetFile.exists()) {
+				targetFile.mkdirs();
+			}
+
+			FileUtils.copyDirectory(tempFile,targetFile);
 
 			//删除临时目录
 			FileUtils.forceDelete(tempFile);

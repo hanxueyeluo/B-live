@@ -2,7 +2,6 @@ package com.easylive.web.controller;
 
 
 import com.easylive.entity.dto.TokenUserInfoDto;
-import com.easylive.entity.po.VideoInfo;
 import com.easylive.entity.po.VideoInfoFilePost;
 import com.easylive.entity.po.VideoInfoPost;
 import com.easylive.entity.vo.ResponseVO;
@@ -19,7 +18,6 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -54,20 +52,16 @@ public class UserCenterVideoPostController extends ABaseController{
         VideoInfoPost videoInfoPost=new VideoInfoPost();
         videoInfoPost.setVideoId(videoId);
         videoInfoPost.setVideoCover(videoCover);
+        videoInfoPost.setVideoName(videoName);
         videoInfoPost.setpCategoryId(pCategoryId);
         videoInfoPost.setCategoryId(categoryId);
         videoInfoPost.setPostType(postType);
         videoInfoPost.setTags(tags);
         videoInfoPost.setIntroduction(introduction);
         videoInfoPost.setInteraction(interaction);
-
         videoInfoPost.setUserId(tokenUserInfoDto.getUserId());
-
         videoInfoPostService.saveVideoInfo(videoInfoPost,filePostList);
-
         return getSuccessResponseVO(null);
-
-
     }
 
 }
