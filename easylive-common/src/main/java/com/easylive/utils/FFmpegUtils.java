@@ -5,6 +5,7 @@ import com.easylive.entity.constants.Constants;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.math.BigDecimal;
 
 
@@ -47,9 +48,25 @@ public class FFmpegUtils {
 
     //将源文件转成mp4编码
     public void convertHevc2Mp4(String newFileName,String videoFilePath){
-        String CMD_HEVC_264="ffmpeg -i %s -c:v libx264 -crf 20 %s -y";
+        String CMD_HEVC_264="ffmpeg -i \"%s\" -c:v libx264 -crf 20 \"%s\" -y";
         String cmd=String.format(CMD_HEVC_264,newFileName,videoFilePath);
         ProcessUtils.executeCommand(cmd,appConfig.getShowFFmepgLog());
+    }
+
+
+    //生成.ts文件
+    public void convertVideo2Ts(File tsFolder,String videoFilePath){
+        String CMD_TRANSFER_2TS="ffmpeg -y -i \"%s\" -vcodec copy -vbsf h264_mp4toannexb \"%s\"";
+        String CMD_cut_ts="ffmpeg -i \"%s\" -c copy -map 0 -f segment \"%s\" -segment_time 10 %s/%%4d.ts";
+        String tsPath=tsFolder+"/"+Constants.TS_NAME;
+        //生成ts文件
+        String cmd=String.format(CMD_TRANSFER_2TS,videoFilePath,tsPath);
+        ProcessUtils.executeCommand(cmd,appConfig.getShowFFmepgLog());
+        //生成索引文件.m3u8 和切片.ts
+        cmd=String.format(CMD_cut_ts,tsPath,tsFolder.getPath()+"/"+Constants.M3U8_NAME,tsFolder.getPath());
+        ProcessUtils.executeCommand(cmd,appConfig.getShowFFmepgLog());
+        //删除index.ts
+        new File(tsPath).delete();
     }
 
 }

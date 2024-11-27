@@ -1,5 +1,6 @@
 package com.easylive.mapper;
 
+import com.easylive.entity.po.VideoInfoPost;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -46,4 +47,10 @@ public interface VideoInfoFilePostMapper<T,P> extends BaseMapper<T,P> {
 
 
     void deleteBatchByFileId(@Param("delFileList") List<String> delFileList,@Param("userId") String userId);
+
+
+	void updateByUploadIdAndUserId(@Param("bean") T updateFilePost,@Param("uploadId") String uploadId,@Param("userId") String userId);
+
+
+	Integer sumDuration(@Param("videoId") String videoId);
 }

@@ -15,6 +15,7 @@ import com.easylive.entity.config.AppConfig;
 import com.easylive.entity.constants.Constants;
 import com.easylive.entity.dto.UploadFileDto;
 import com.easylive.entity.enums.*;
+import com.easylive.entity.po.VideoInfo;
 import com.easylive.entity.po.VideoInfoFilePost;
 import com.easylive.entity.query.VideoInfoFilePostQuery;
 import com.easylive.exception.BusinessException;
@@ -294,13 +295,32 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			updateFilePost.setTransferResult(VideoFileTransferResultEnum.SUCCESS.getStatus());
 			this.convertVideo2Ts(completeVideo);
 
-
-
-
 		}catch (Exception e){
 			log.error("文件转码失败",e);
+			updateFilePost.setTransferResult(VideoFileTransferResultEnum.FAIL.getStatus());
 		}finally {
+			videoInfoFilePostMapper.updateByUploadIdAndUserId(updateFilePost,videoInfoFilePost.getUploadId(),videoInfoFilePost.getUserId());
 
+			VideoInfoFilePostQuery filePostQuery=new VideoInfoFilePostQuery();
+			filePostQuery.setVideoId(videoInfoFilePost.getVideoId());
+			filePostQuery.setTransferResult(VideoFileTransferResultEnum.FAIL.getStatus());
+			//记录转码失败的数量
+			Integer failCount=videoInfoFilePostMapper.selectCount(filePostQuery);
+			if (failCount > 0) {
+				VideoInfoPost videoUpdate=new VideoInfoPost();
+				videoUpdate.setStatus(VideoStatusEnum.STATUS1.getStatus());
+				videoInfoPostMapper.updateByVideoId(videoUpdate, videoInfoFilePost.getVideoId());
+				return;
+			}
+			filePostQuery.setTransferResult(VideoFileTransferResultEnum.TRANSFER.getStatus());
+			Integer transferCount=videoInfoFilePostMapper.selectCount(filePostQuery);
+			if (transferCount==0){
+				Integer duration=videoInfoFilePostMapper.sumDuration(videoInfoFilePost.getVideoId());
+				VideoInfoPost videoUpdate=new VideoInfoPost();
+				videoUpdate.setStatus(VideoStatusEnum.STATUS2.getStatus());
+				videoUpdate.setDuration(duration);
+				videoInfoPostMapper.updateByVideoId(videoUpdate,videoInfoFilePost.getVideoId());
+			}
 		}
 	}
 
@@ -315,7 +335,8 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			fFmpegUtils.convertHevc2Mp4(tempFileName,completeVideo);
 			new File(tempFileName).delete();
 		}
-
+		fFmpegUtils.convertVideo2Ts(tsFolder,completeVideo);
+		videoFile.delete();
 	}
 
 	private void union(String dirPath,String toFilePath,Boolean delSource){
