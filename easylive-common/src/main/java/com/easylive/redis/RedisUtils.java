@@ -101,7 +101,7 @@ public class RedisUtils<V> {
     }
 
 
-    public boolean lpush(String key, V value, Long time) {
+    public boolean lpush(String key, V value, Integer time) {
         try {
             redisTemplate.opsForList().leftPush(key, value);
             if (time != null && time > 0) {

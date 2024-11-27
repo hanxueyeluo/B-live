@@ -519,8 +519,12 @@
 	<delete id="deleteByUploadId">
 		delete from video_info_file_post where upload_id=#{uploadId}
 	</delete>
+    <delete id="deleteBatchByFileId">
+		delete from video_info_file_post where file_id in(<foreach collection="delFileList" separator="," item="item">#{item}</foreach> )
+		and user_id=#{userId}
+	</delete>
 
-	<!-- 根据PrimaryKey获取对象-->
+    <!-- 根据PrimaryKey获取对象-->
 	<select id="selectByUploadId" resultMap="base_result_map" >
 		select <include refid="base_column_list" /> from video_info_file_post where upload_id=#{uploadId}
 	</select>

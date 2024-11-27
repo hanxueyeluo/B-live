@@ -7,6 +7,7 @@ import com.easylive.entity.dto.TokenUserInfoDto;
 import com.easylive.entity.dto.UploadFileDto;
 import com.easylive.entity.enums.DateTimePatternEnum;
 import com.easylive.entity.po.CategoryInfo;
+import com.easylive.entity.po.VideoInfoFilePost;
 import com.easylive.redis.RedisUtils;
 import com.easylive.utils.DateUtil;
 import com.easylive.utils.StringTools;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.net.ServerSocket;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -114,5 +114,22 @@ public class RedisComponent {
 
     public void updateVideoFileInfo(String userId, UploadFileDto uploadFileDto) {
         redisUtils.setex(Constants.REDIS_KEY_UPLOADING_FILE+userId+uploadFileDto.getUploadId(),uploadFileDto,Constants.REDIS_KEY_EXPIRES_ONE_DAY);
+    }
+
+    public void delVideoFileInfo(String userId, String uploadId) {
+        redisUtils.delete(Constants.REDIS_KEY_UPLOADING_FILE+userId+uploadId);
+    }
+
+    public void addFile2DelQueue(String videoId, List<String> delFilePathList) {
+        redisUtils.lpush(Constants.REDIS_KEY_FILE_DEL+videoId,delFilePathList,Constants.REDIS_KEY_EXPIRES_ONE_DAY*7);
+    }
+
+
+    public void addFile2TransferQueue(List<VideoInfoFilePost> addFileList) {
+        redisUtils.lpush(Constants.REDIS_KEY_QUEUE_TRANSFER,addFileList,0);
+    }
+
+    public VideoInfoFilePost getFileFromTransferQueue() {
+        return (VideoInfoFilePost) redisUtils.rpop(Constants.REDIS_KEY_QUEUE_TRANSFER);
     }
 }

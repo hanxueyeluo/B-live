@@ -2,6 +2,8 @@ package com.easylive.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * 视频文件信息 数据库操作接口
  */
@@ -43,4 +45,5 @@ public interface VideoInfoFilePostMapper<T,P> extends BaseMapper<T,P> {
 	 T selectByUploadId(@Param("uploadId") String uploadId);
 
 
+    void deleteBatchByFileId(@Param("delFileList") List<String> delFileList,@Param("userId") String userId);
 }

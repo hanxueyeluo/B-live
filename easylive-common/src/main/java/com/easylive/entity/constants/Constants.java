@@ -6,6 +6,7 @@ public class Constants {
 
     public static final Integer ONE=1;
     public static final Integer ZERO=0;
+    public static final Integer LENGTH_2=2;
     public static final Integer LENGTH_10=10;
     public static final Integer LENGTH_15=15;
     public static final Integer LENGTH_30=30;
@@ -27,6 +28,10 @@ public class Constants {
     public static final String FILE_FOLDER_TEMP="temp/";
     public static final String REDIS_KEY_UPLOADING_FILE=REDIS_KEY_PREFIX+"uploading:";
     public static final String REDIS_KEY_SYS_SETTING=REDIS_KEY_PREFIX+"sysSetting:";
-
+    public static final String REDIS_KEY_FILE_DEL=REDIS_KEY_PREFIX+"file:list:del";
+    public static final String REDIS_KEY_QUEUE_TRANSFER=REDIS_KEY_PREFIX+"queue:transfer";
+    public static final String QUEUE_NAME = "videoFileTransferQueue";
+    public static final String EXCHANGE_NAME = "videoExchange";
+    public static final String ROUTING_KEY = "videoRoutingKey";
 
 }

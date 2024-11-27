@@ -15,12 +15,14 @@ import com.easylive.utils.DateUtil;
 import com.easylive.utils.FFmpegUtils;
 import com.easylive.utils.StringTools;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -36,6 +38,10 @@ public class FileController extends ABaseController{
     private AppConfig appConfig;
     @Resource
     private RedisComponent redisComponent;
+
+    @Resource
+    private FFmpegUtils fFmpegUtils;
+
     @RequestMapping("/getResource")
     public void getResource(HttpServletResponse response, @NotNull String sourceName) throws FileNotFoundException {
         if(!StringTools.pathIsOk(sourceName)){
@@ -72,7 +78,7 @@ public class FileController extends ABaseController{
     }
 
     @RequestMapping("/uploadVideo")
-    public ResponseVO uploadVideo(@NotNull MultipartFile chunkFile,@NotNull Integer chunkIndex,@NotEmpty String uploadId) throws IOException {
+    public ResponseVO uploadVideo(@NotNull MultipartFile chunkFile, @NotNull Integer chunkIndex, @NotEmpty String uploadId) throws IOException {
         TokenUserInfoDto tokenUserInfoDto=getTokenUserInfoDto();
         UploadFileDto uploadFileDto=redisComponent.getUploadVideoDto(tokenUserInfoDto.getUserId(),uploadId);
         if (uploadFileDto==null){
@@ -95,5 +101,35 @@ public class FileController extends ABaseController{
         return getSuccessResponseVO(null);
     }
 
+    @RequestMapping("/delUploadVideo")
+    public ResponseVO delUploadVideo( @NotEmpty String uploadId) throws IOException {
+        TokenUserInfoDto tokenUserInfoDto=getTokenUserInfoDto();
+        UploadFileDto fileDto=redisComponent.getUploadVideoDto(tokenUserInfoDto.getUserId(),uploadId);
+        if (fileDto==null){
+            throw new BusinessException("文件不存在，请重新上传");
+        }
+        redisComponent.delVideoFileInfo(tokenUserInfoDto.getUserId(),uploadId);
+        FileUtils.deleteDirectory(new File(appConfig.getProjectFolder()+Constants.FILE_FOLDER+Constants.FILE_FOLDER_TEMP+fileDto.getFilePath()));
+        return getSuccessResponseVO(uploadId);
+    }
+
+    @RequestMapping("/uploadCover")
+    public ResponseVO uploadCover(@NotNull MultipartFile file,@NotNull Boolean createThumbnail) throws IOException {
+        String day=DateUtil.format(new Date(),DateTimePatternEnum.YYYYMMDD.getPattern());
+        String folder=appConfig.getProjectFolder()+Constants.FILE_FOLDER+Constants.FILE_COVER+day;
+        File folderFile=new File(folder);
+        if (!folderFile.exists()) {
+            folderFile.mkdirs();
+        }
+        String fileName=file.getOriginalFilename();
+        String fileSuffix=StringTools.getFileSuffix(fileName);
+        String realFileName=StringTools.getRandomNumber(Constants.LENGTH_30)+fileSuffix;
+        String filePath=folder+"/"+realFileName;
+        file.transferTo(new File(filePath));
+        if (createThumbnail != null&&createThumbnail) {
+            fFmpegUtils.createImageThumbnail(filePath);
+        }
+        return getSuccessResponseVO(Constants.FILE_COVER+day+"/"+realFileName);
+    }
 
 }
